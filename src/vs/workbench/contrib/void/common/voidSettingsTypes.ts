@@ -444,6 +444,7 @@ export type ChatMode = 'agent' | 'gather' | 'normal'
 export type GlobalSettings = {
 	autoRefreshModels: boolean;
 	aiInstructions: string;
+	customSystemPrompt: string;
 	enableAutocomplete: boolean;
 	syncApplyToChat: boolean;
 	syncSCMToChat: boolean;
@@ -460,6 +461,7 @@ export type GlobalSettings = {
 export const defaultGlobalSettings: GlobalSettings = {
 	autoRefreshModels: true,
 	aiInstructions: '',
+	customSystemPrompt: '',
 	enableAutocomplete: false,
 	syncApplyToChat: true,
 	syncSCMToChat: true,

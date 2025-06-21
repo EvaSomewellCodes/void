@@ -425,7 +425,7 @@ const systemToolsXMLPrompt = (chatMode: ChatMode, mcpTools: InternalToolInfo[] |
 // ======================================================== chat (normal, gather, agent) ========================================================
 
 
-export const chat_systemMessage = ({ workspaceFolders, openedURIs, activeURI, persistentTerminalIDs, directoryStr, chatMode: mode, mcpTools, includeXMLToolDefinitions }: { workspaceFolders: string[], directoryStr: string, openedURIs: string[], activeURI: string | undefined, persistentTerminalIDs: string[], chatMode: ChatMode, mcpTools: InternalToolInfo[] | undefined, includeXMLToolDefinitions: boolean }) => {
+export const chat_systemMessage = ({ workspaceFolders, openedURIs, activeURI, persistentTerminalIDs, directoryStr, chatMode: mode, mcpTools, includeXMLToolDefinitions, customSystemPrompt }: { workspaceFolders: string[], directoryStr: string, openedURIs: string[], activeURI: string | undefined, persistentTerminalIDs: string[], chatMode: ChatMode, mcpTools: InternalToolInfo[] | undefined, includeXMLToolDefinitions: boolean, customSystemPrompt?: string }) => {
 	const header = (`You are an expert coding ${mode === 'agent' ? 'agent' : 'assistant'} whose job is \
 ${mode === 'agent' ? `to help the user develop, run, and make changes to their codebase.`
 			: mode === 'gather' ? `to search, understand, and reference files in the user's codebase.`
@@ -514,11 +514,21 @@ ${details.map((d, i) => `${i + 1}. ${d}`).join('\n\n')}`)
 
 	// return answer
 	const ansStrs: string[] = []
-	ansStrs.push(header)
-	ansStrs.push(sysInfo)
-	if (toolDefinitions) ansStrs.push(toolDefinitions)
-	ansStrs.push(importantDetails)
-	ansStrs.push(fsInfo)
+	
+	// If customSystemPrompt is provided, use it instead of the default header and important details
+	if (customSystemPrompt) {
+		ansStrs.push(customSystemPrompt)
+		ansStrs.push(sysInfo)
+		if (toolDefinitions) ansStrs.push(toolDefinitions)
+		ansStrs.push(fsInfo)
+	} else {
+		// Use default system prompt structure
+		ansStrs.push(header)
+		ansStrs.push(sysInfo)
+		if (toolDefinitions) ansStrs.push(toolDefinitions)
+		ansStrs.push(importantDetails)
+		ansStrs.push(fsInfo)
+	}
 
 	const fullSystemMsgStr = ansStrs
 		.join('\n\n\n')

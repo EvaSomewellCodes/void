@@ -794,6 +794,23 @@ export const AIInstructionsBox = () => {
 	/>
 }
 
+export const CustomSystemPromptBox = () => {
+	const accessor = useAccessor()
+	const voidSettingsService = accessor.get('IVoidSettingsService')
+	const voidSettingsState = useSettingsState()
+	return <VoidInputBox2
+		className='min-h-[120px] p-3 rounded-sm'
+		initValue={voidSettingsState.globalSettings.customSystemPrompt}
+		placeholder={`Leave empty to use the default system prompt. When provided, this replaces the default system instructions while preserving tool definitions.
+
+Example: "You are an expert coding assistant who helps with Python development. Always write clean, well-documented code following PEP 8 conventions."`}
+		multiline
+		onChangeText={(newText) => {
+			voidSettingsService.setGlobalSetting('customSystemPrompt', newText)
+		}}
+	/>
+}
+
 const FastApplyMethodDropdown = () => {
 	const accessor = useAccessor()
 	const voidSettingsService = accessor.get('IVoidSettingsService')
@@ -1492,6 +1509,23 @@ Alternatively, place a \`.voidrules\` file in the root of your workspace.
 										<div className='text-void-fg-3 text-xs mt-1'>
 											{`When disabled, Void will not include anything in the system message except for content you specified above.`}
 										</div>
+									</div>
+								</div>
+
+								{/* Custom System Prompt section */}
+								<div className='max-w-[600px] mt-8'>
+									<h2 className={`text-3xl mb-2`}>Custom System Prompt</h2>
+									<h4 className={`text-void-fg-3 mb-4`}>
+										<ChatMarkdownRender inPTag={true} string={`
+Override the default system prompt while preserving tool definitions.
+When left empty, Void uses its default system prompt.
+								`} chatMessageLocation={undefined} />
+									</h4>
+									<ErrorBoundary>
+										<CustomSystemPromptBox />
+									</ErrorBoundary>
+									<div className='text-void-fg-3 text-xs mt-2'>
+										{`Note: This replaces only the instructional part of the system message. Tool definitions and workspace context are always included to maintain functionality.`}
 									</div>
 								</div>
 							</div>

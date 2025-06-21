@@ -593,7 +593,21 @@ class ConvertToLLMMessageService extends Disposable implements IConvertToLLMMess
 		const mcpTools = this.mcpService.getMCPTools()
 
 		const persistentTerminalIDs = this.terminalToolService.listPersistentTerminalIds()
-		const systemMessage = chat_systemMessage({ workspaceFolders, openedURIs, directoryStr, activeURI, persistentTerminalIDs, chatMode, mcpTools, includeXMLToolDefinitions })
+		
+		// Get custom system prompt from settings
+		const customSystemPrompt = this.voidSettingsService.state.globalSettings.customSystemPrompt;
+		
+		const systemMessage = chat_systemMessage({ 
+			workspaceFolders, 
+			openedURIs, 
+			directoryStr, 
+			activeURI, 
+			persistentTerminalIDs, 
+			chatMode, 
+			mcpTools, 
+			includeXMLToolDefinitions,
+			customSystemPrompt: customSystemPrompt || undefined 
+		})
 		return systemMessage
 	}
 
@@ -679,9 +693,11 @@ class ConvertToLLMMessageService extends Disposable implements IConvertToLLMMess
 			supportsSystemMessage,
 		} = getModelCapabilities(providerName, modelName, overridesOfModel)
 
-		const { disableSystemMessage } = this.voidSettingsService.state.globalSettings;
+		const { disableSystemMessage, customSystemPrompt } = this.voidSettingsService.state.globalSettings;
 		const fullSystemMessage = await this._generateChatMessagesSystemMessage(chatMode, specialToolFormat)
-		const systemMessage = disableSystemMessage ? '' : fullSystemMessage;
+		// If disableSystemMessage is true but customSystemPrompt exists, we should still use the full system message
+		// because it includes the custom prompt with preserved tools
+		const systemMessage = (disableSystemMessage && !customSystemPrompt) ? '' : fullSystemMessage;
 
 		const modelSelectionOptions = this.voidSettingsService.state.optionsOfModelSelection['Chat'][modelSelection.providerName]?.[modelSelection.modelName]
 
